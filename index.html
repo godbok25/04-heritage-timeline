@@ -9,14 +9,14 @@
   :root { --bg:#ffffff; --ink:#1c1a17; --muted:#8b8577; --line:#d8d3c8; --guk:#528285; --bo:#96938c; }
   * { box-sizing:border-box; }
   html, body { margin:0; padding:0; width:100%; min-height:100vh; background:var(--bg); color:var(--ink); font-family:'Noto Sans KR', sans-serif; }
-  .header { padding: 46px 24px 8px; text-align:center; }
+  .header { padding: 46px 24px 0; text-align:center; }
   .header-inner { max-width:900px; margin:0 auto; text-align:left; }
   .kicker { font-size:11px; letter-spacing:2.5px; color:var(--muted); text-transform:uppercase; margin-bottom:16px; }
   .headline { font-family:'Noto Serif KR', serif; font-weight:700; font-size:clamp(22px,3.4vw,34px); line-height:1.7; max-width:900px; margin:0 auto 40px; }
   .headline .accent-guk { color: var(--guk); }
   .headline .accent-bo { color: var(--bo); }
 
-  .search-wrap { position:relative; margin:0 auto 26px; }
+  .search-wrap { position:relative; margin:0 auto 4px; }
   .search-box { width:100%; position:relative; }
   .search-icon { position:absolute; left:2px; bottom:8px; font-size:22px; color:var(--muted); opacity:0.6; pointer-events:none; transform: scaleX(-1); }
   .search-input { width:100%; padding:8px 4px 10px 30px; border:none; border-bottom:1.4px solid var(--line); background:transparent; font-size:14px; color:var(--ink); outline:none; text-align:left; }
@@ -35,7 +35,7 @@
   .totals-row .t.b .n { color: var(--bo); }
   .totals-row .t .l { font-size:11px; color:var(--muted); }
 
-  .canvas-wrap { position:relative; width:100%; height:560px; overflow:hidden; cursor:ew-resize; touch-action:pan-y; }
+  .canvas-wrap { position:relative; width:100%; height:clamp(320px, 62vh, 560px); overflow:hidden; cursor:ew-resize; touch-action:pan-y; }
   .canvas-wrap.dragging { cursor:grabbing; }
   svg#canvas { width:100%; height:100%; display:block; }
 
@@ -59,21 +59,72 @@
   #labelLayer.lod-hide-rep .lbl-rep { opacity:0; }
 
   #popupCard {
-    position:absolute; width:220px; max-height:260px; overflow-y:auto;
+    position:absolute; width:max-content; min-width:220px; max-width:calc(100vw - 32px); max-height:260px; overflow-y:auto;
     background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 16px;
     font-family:'Noto Sans KR'; box-shadow:0 14px 32px rgba(28,26,23,0.14);
-    opacity:0; transform:scale(0.96); transition:opacity 0.25s ease, transform 0.28s cubic-bezier(.2,.9,.3,1); pointer-events:none; z-index:60;
+    opacity:0; transform:scale(0.96);
+    transition:opacity 0.25s ease, transform 0.28s cubic-bezier(.2,.9,.3,1), max-height 0.32s cubic-bezier(.2,.9,.3,1), width 0.32s cubic-bezier(.2,.9,.3,1), min-width 0.32s cubic-bezier(.2,.9,.3,1);
+    pointer-events:none; z-index:60;
   }
   #popupCard.show { opacity:1; transform:scale(1); pointer-events:all; }
-  #popupCard .ic-head { font-size:11px; color:var(--muted); margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid var(--line); }
+  #popupCard.expanded { min-width:280px; max-height:440px; }
+  #popupCard .ic-head { font-size:11px; color:var(--muted); margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid var(--line); white-space:nowrap; display:flex; align-items:center; justify-content:space-between; gap:10px; }
   #popupCard .ic-item { font-size:12.5px; line-height:1.9; display:flex; justify-content:space-between; align-items:center; gap:6px; }
-  #popupCard .ic-item a { font-size:10.5px; color:var(--ink); text-decoration:none; border:1px solid var(--line); border-radius:10px; padding:1px 7px; white-space:nowrap; }
-  #popupCard .ic-item a:hover { background:#f2efe8; }
-  #popupCard .ic-more { font-size:11.5px; color:var(--muted); font-style:italic; margin-top:4px; }
+  #popupCard .ic-item span { white-space:nowrap; }
+  #popupCard .ic-item a, #popupCard .ic-item .ic-img-btn {
+    font-family:inherit; font-size:10.5px; color:var(--ink); text-decoration:none;
+    border:1px solid var(--line); border-radius:10px; padding:1px 7px; white-space:nowrap;
+    background:#fff; cursor:pointer;
+  }
+  #popupCard .ic-item a:hover, #popupCard .ic-item .ic-img-btn:hover { background:#f2efe8; }
+  #popupCard .ic-more {
+    display:block; width:100%; margin-top:4px; padding:2px 0;
+    font-family:inherit; font-size:11.5px; font-style:italic; color:var(--muted);
+    background:none; border:none; text-align:left; cursor:pointer;
+  }
+  #popupCard .ic-more:hover { color:var(--ink); text-decoration:underline; }
+  #popupCard .ic-expand, #popupCard .ic-close {
+    position:relative; flex-shrink:0; width:20px; height:20px; border-radius:50%;
+    border:1px solid var(--line); background:#fff; color:var(--ink); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:12px; line-height:1; padding:0;
+  }
+  #popupCard .ic-expand { width:26px; height:26px; font-size:17px; font-weight:700; color:#57534a; border-color:#57534a; }
+  #popupCard .ic-expand:hover, #popupCard .ic-close:hover { background:#f2efe8; }
 
-  .zoom-controls { position:absolute; bottom:14px; right:14px; z-index:20; display:flex; gap:6px; }
-  .zoom-btn { width:34px; height:34px; border-radius:8px; border:1px solid var(--line); background:#fff; cursor:pointer; font-size:16px; color:var(--ink); display:flex; align-items:center; justify-content:center; }
-  .zoom-btn:hover { background:#f6f4ee; }
+  #imageModal {
+    position:fixed; inset:0; background:rgba(28,26,22,0.74);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity 0.25s ease; z-index:1000;
+  }
+  #imageModal.show { opacity:1; pointer-events:all; }
+  #imageModal .modal-frame {
+    position:relative; display:inline-block; max-width:90vw; max-height:85vh;
+    opacity:0; transform:scale(0.94); transition:opacity 0.25s ease, transform 0.28s cubic-bezier(.2,.9,.3,1);
+  }
+  #imageModal.show .modal-frame { opacity:1; transform:scale(1); }
+  #imageModal img {
+    display:block; max-width:min(90vw, 720px); max-height:85vh; border-radius:10px;
+    box-shadow:0 24px 64px rgba(0,0,0,0.45); cursor:zoom-out;
+  }
+  #imageModalClose {
+    position:absolute; top:-16px; right:-16px; width:44px; height:44px; border-radius:50%;
+    border:none; background:#1c1a17; cursor:pointer;
+    transition:transform 0.3s ease, background 0.2s ease;
+  }
+  #imageModalClose::before, #imageModalClose::after {
+    content:''; position:absolute; top:50%; left:50%; width:20px; height:1px; background:#fff;
+  }
+  #imageModalClose::before { transform:translate(-50%,-50%) rotate(45deg); }
+  #imageModalClose::after { transform:translate(-50%,-50%) rotate(-45deg); }
+  #imageModalClose:hover { background:rgba(255,255,255,0.2); transform:rotate(90deg); }
+
+  .mouse-hint-group { pointer-events:none; animation: mouseHintFade 4.5s ease-in-out 0.6s 1 both; }
+  @keyframes mouseHintFade {
+    0% { opacity:0; }
+    12% { opacity:0.95; }
+    65% { opacity:0.95; }
+    100% { opacity:0; }
+  }
 </style>
 </head>
 <body>
@@ -99,9 +150,12 @@
 <div class="canvas-wrap" id="canvasWrap">
   <svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg>
   <div id="popupCard"></div>
-  <div class="zoom-controls">
-    <button class="zoom-btn" id="zoomOut">−</button>
-    <button class="zoom-btn" id="zoomIn">+</button>
+</div>
+
+<div id="imageModal">
+  <div class="modal-frame">
+    <img id="imageModalImg" alt="">
+    <button type="button" id="imageModalClose" aria-label="닫기"></button>
   </div>
 </div>
 
@@ -122,6 +176,29 @@ const wrap = document.getElementById('canvasWrap');
 const popup = document.getElementById('popupCard');
 const NS = 'http://www.w3.org/2000/svg';
 function el(tag, attrs) { const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); return e; }
+function itemRowHtml(it) {
+  const link = it.img ? `<button type="button" class="ic-img-btn" data-img="${it.img}">이미지</button>` : '';
+  return `<div class="ic-item"><span>${it.name}</span>${link}</div>`;
+}
+
+const imageModal = document.getElementById('imageModal');
+const imageModalImg = document.getElementById('imageModalImg');
+function openImageModal(src) {
+  imageModalImg.src = src;
+  imageModal.classList.add('show');
+}
+function closeImageModal() {
+  imageModal.classList.remove('show');
+  imageModalImg.src = '';
+}
+popup.addEventListener('click', (e) => {
+  const btn = e.target.closest('.ic-img-btn');
+  if (btn) { e.stopPropagation(); openImageModal(btn.dataset.img); }
+});
+imageModalImg.addEventListener('click', closeImageModal);
+document.getElementById('imageModalClose').addEventListener('click', closeImageModal);
+imageModal.addEventListener('click', (e) => { if (e.target === imageModal) closeImageModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeImageModal(); });
 
 const staticLayer = el('g',{}); svg.appendChild(staticLayer);
 staticLayer.appendChild(el('line',{class:'axis-line', x1:X_MIN, x2:X_MAX, y1:AXIS_Y, y2:AXIS_Y}));
@@ -140,7 +217,6 @@ const labelLayer = el('g',{id:'labelLayer'}); svg.appendChild(labelLayer);
 const dotData = [];
 let currentOpenX = null;
 let openDotClose = null;
-let activeCancel = null, activeScheduleClose = null;
 const MIN_STEM = 14 + Math.log(1 + 1) * 30;
 
 DOTS.forEach((d, di) => {
@@ -196,43 +272,77 @@ DOTS.forEach((d, di) => {
     countText.setAttribute('y', p.countY);
   }
 
-  const itemsHtml = d.top5.map(it => {
-    const link = it.img ? `<a href="${it.img}" target="_blank" rel="noopener">이미지</a>` : '';
-    return `<div class="ic-item"><span>${it.name}</span>${link}</div>`;
-  }).join('');
-  const moreHtml = d.remainder>0 ? `<div class="ic-more">외 ${d.remainder}건</div>` : '';
-  const html = `<div class="ic-head">${d.category} · ${d.year}년 · ${d.count}건</div>${itemsHtml}${moreHtml}`;
+  const headText = `${d.category} · ${d.year}년 · ${d.count}건`;
+  function collapsedHtml() {
+    const itemsHtml = d.top5.map(itemRowHtml).join('');
+    const expandBtn = d.remainder>0 ? `<button type="button" class="ic-expand">›</button>` : '';
+    const moreHtml = d.remainder>0 ? `<button type="button" class="ic-more">외 ${d.remainder}건</button>` : '';
+    return `<div class="ic-head"><span>${headText}</span>${expandBtn}</div>${itemsHtml}${moreHtml}`;
+  }
+  function expandedHtml() {
+    const itemsHtml = d.items.map(itemRowHtml).join('');
+    return `<div class="ic-head"><span>${headText}</span><button type="button" class="ic-close">×</button></div>${itemsHtml}`;
+  }
 
   function openPopup() {
     if (openDotClose && openDotClose !== closePopup) openDotClose();
-    popup.innerHTML = html;
+    popup.classList.remove('expanded');
+    popup.style.width = '';
+    popup.style.maxHeight = '';
+    popup.innerHTML = collapsedHtml();
     popup.classList.add('show');
     positionPopupNear(x, minPos.dy, dir);
     currentOpenX = x;
     hitCircle.classList.add('is-open');
     openDotClose = closePopup;
+    popup.querySelectorAll('.ic-expand, .ic-more').forEach(btn => {
+      btn.addEventListener('click', (e) => { e.stopPropagation(); expandPopup(); });
+    });
+  }
+  function expandPopup() {
+    const fromRect = popup.getBoundingClientRect();
+    const fromWidth = fromRect.width;
+    const fromHeight = fromRect.height;
+    const fromTop = parseFloat(popup.style.top) || 0;
+    const fromBottom = fromTop + fromHeight;
+    popup.innerHTML = expandedHtml();
+    popup.classList.add('expanded');
+
+    popup.style.width = 'max-content';
+    popup.style.maxHeight = 'none';
+    const targetWidth = Math.min(popup.scrollWidth, window.innerWidth - 32, 380);
+    const targetHeight = Math.min(popup.scrollHeight, 440);
+    // 보물(아래로 열리는 팝업)은 아래쪽 여유 공간이 적으니 아래 끝을 고정하고 위로 커지게 함
+    const anchorTop = dir > 0 ? (fromBottom - targetHeight) : fromTop;
+    clampPopupPosition(targetWidth, targetHeight, anchorTop);
+
+    popup.style.width = fromWidth + 'px';
+    popup.style.maxHeight = fromHeight + 'px';
+    void popup.offsetWidth;
+    requestAnimationFrame(() => {
+      void popup.offsetWidth;
+      requestAnimationFrame(() => {
+        popup.style.width = targetWidth + 'px';
+        popup.style.maxHeight = targetHeight + 'px';
+      });
+    });
+    const closeBtn = popup.querySelector('.ic-close');
+    if (closeBtn) closeBtn.addEventListener('click', (e) => { e.stopPropagation(); setCollapsed(false); closePopup(); });
   }
   function closePopup() {
-    popup.classList.remove('show');
+    popup.classList.remove('show', 'expanded');
+    popup.style.width = '';
+    popup.style.maxHeight = '';
     currentOpenX = null;
     hitCircle.classList.remove('is-open');
     if (openDotClose === closePopup) openDotClose = null;
   }
-  let leaveTimer = null;
-  function cancelClose() { if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; } }
-  function scheduleClose() {
-    leaveTimer = setTimeout(() => { setCollapsed(false); closePopup(); }, 150);
-  }
   hitCircle.addEventListener('mouseenter', () => {
-    cancelClose(); setCollapsed(true); openPopup();
-    activeCancel = cancelClose; activeScheduleClose = scheduleClose;
+    if (currentOpenX !== null && currentOpenX !== x) return;
+    setCollapsed(true); openPopup();
   });
-  hitCircle.addEventListener('mouseleave', scheduleClose);
   dotData.push({x, toggle: () => { setCollapsed(true); openPopup(); }});
 });
-
-popup.addEventListener('mouseenter', () => { if (activeCancel) activeCancel(); });
-popup.addEventListener('mouseleave', () => { if (activeScheduleClose) activeScheduleClose(); });
 
 document.addEventListener('click',(e)=>{
   if (!e.target.closest('.dot-hit') && !e.target.closest('#popupCard')) {
@@ -246,13 +356,24 @@ function positionPopupNear(sx, sy, dir) {
   const rect = svg.getBoundingClientRect();
   const left = (sx - view.x) / view.w * rect.width;
   const top = (sy - view.y) / view.h * rect.height;
-  const w = 220;
+  const w = popup.offsetWidth;
   let L = left - w/2;
   L = Math.max(8, Math.min(rect.width - w - 8, L));
   let T;
   if (dir < 0) { T = top - 16 - (popup.offsetHeight || 180); }
   else { T = top + 16; }
   T = Math.max(8, Math.min(rect.height - 20, T));
+  popup.style.right = 'auto';
+  popup.style.left = L + 'px';
+  popup.style.top = T + 'px';
+}
+function clampPopupPosition(width, height, top) {
+  const rect = wrap.getBoundingClientRect();
+  let L = parseFloat(popup.style.left) || 0;
+  let T = (typeof top === 'number') ? top : (parseFloat(popup.style.top) || 0);
+  L = Math.max(8, Math.min(rect.width - width - 8, L));
+  T = Math.max(8, Math.min(rect.height - height - 8, T));
+  popup.style.right = 'auto';
   popup.style.left = L + 'px';
   popup.style.top = T + 'px';
 }
@@ -263,10 +384,18 @@ function clampX() {
   if (view.x < minVX) view.x = minVX;
   if (view.x > maxVX) view.x = maxVX;
 }
+function verticalAnchor() {
+  const rect = wrap.getBoundingClientRect();
+  const clamp01 = v => Math.max(0, Math.min(1, v));
+  const wT = clamp01((rect.width - 380) / (900 - 380));
+  const hT = clamp01((rect.height - 320) / (560 - 320));
+  const t = Math.min(wT, hT);
+  return 0.32 + t * 0.18; // 가로/세로 중 더 좁아진 쪽 기준으로 축이 위로(0.32) 이동, 넓으면 중앙(0.5)
+}
 function setSize(w) {
   view.w = w;
   view.h = w / currentAspect();
-  view.y = -view.h/2;
+  view.y = -view.h * verticalAnchor();
 }
 function updateLOD() {
   const rect = wrap.getBoundingClientRect();
@@ -278,21 +407,40 @@ function updateLOD() {
 function applyView() { clampX(); svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`); updateLOD(); }
 setSize(1300); applyView();
 
-document.getElementById('zoomIn').addEventListener('click', () => zoomBy(0.8));
-document.getElementById('zoomOut').addEventListener('click', () => zoomBy(1/0.8));
+const mouseHintEl = (function buildMouseHint() {
+  const hintCX = view.x + view.w/2;
+  const gap = 45, iconW = 34, iconH = 56, textGap = 14, textSize = 18;
+  const textY = AXIS_Y - gap;
+  const iconBottomY = textY - textSize - textGap;
+  const iconTopY = iconBottomY - iconH;
+  const padY = 20;
+  const boxW = 330, boxH = (textY - iconTopY) + padY*2;
+  const g = el('g', {class:'mouse-hint-group'});
+  g.appendChild(el('rect', {x:hintCX-boxW/2, y:iconTopY-padY, width:boxW, height:boxH, rx:20, fill:'#ffffff', 'fill-opacity':0.9}));
+  g.appendChild(el('rect', {x:hintCX-iconW/2, y:iconTopY, width:iconW, height:iconH, rx:iconW/2, fill:'none', stroke:'#1c1a17', 'stroke-width':2.2}));
+  g.appendChild(el('line', {x1:hintCX, y1:iconTopY+iconH*0.2, x2:hintCX, y2:iconTopY+iconH*0.4, stroke:'#1c1a17', 'stroke-width':2.2, 'stroke-linecap':'round'}));
+  const text = el('text', {x:hintCX, y:textY, 'text-anchor':'middle', 'font-size':textSize, 'font-weight':500, fill:'#1c1a17'});
+  text.textContent = '드래그로 이동 · 스크롤로 확대/축소';
+  g.appendChild(text);
+  svg.appendChild(g);
+  return g;
+})();
+
 function zoomBy(factor, cxIn=null) {
   const cx = cxIn===null ? (view.x+view.w/2) : cxIn;
   const newW = Math.max(400, Math.min((X_MAX-X_MIN)*1.3, view.w*factor));
   const relX=(cx-view.x)/view.w;
   setSize(newW);
   view.x = cx-relX*newW;
-  popup.classList.remove('show'); currentOpenX=null;
+  popup.classList.remove('show', 'expanded'); currentOpenX=null;
   if (openDotClose) openDotClose();
   applyView();
 }
 function screenToSvgX(sx) { const rect=svg.getBoundingClientRect(); return view.x+(sx-rect.left)/rect.width*view.w; }
+function dismissMouseHint() { if (mouseHintEl) { mouseHintEl.style.animation = 'none'; mouseHintEl.style.opacity = '0'; } }
 wrap.addEventListener('wheel',(e)=>{
   e.preventDefault();
+  dismissMouseHint();
   const svgX = screenToSvgX(e.clientX);
   const factor = e.deltaY>0?1.12:1/1.12;
   zoomBy(factor, svgX);
@@ -300,7 +448,8 @@ wrap.addEventListener('wheel',(e)=>{
 
 let dragging=false, lastX=null;
 wrap.addEventListener('pointerdown',(e)=>{
-  if (e.target.closest('.dot-hit')) return;
+  if (e.target.closest('.dot-hit') || e.target.closest('#popupCard')) return;
+  dismissMouseHint();
   dragging=true; lastX=e.clientX; wrap.classList.add('dragging'); wrap.setPointerCapture(e.pointerId);
   if (openDotClose) openDotClose();
 });
