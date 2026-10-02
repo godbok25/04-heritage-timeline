@@ -55,6 +55,13 @@
   .lbl-count { font-size:11px; fill:#4b4b4b; text-anchor:middle; transition: y 0.32s ease; }
   #labelLayer.lod-hide-all { opacity:0; }
 
+  .axis-tag {
+    font-family:'Noto Serif KR', serif; font-weight:700; font-size:15px; text-anchor:start;
+    transform-box: fill-box; transform-origin: left; transform: scale(var(--label-scale, 1));
+  }
+  .axis-tag.guk { fill: var(--guk); }
+  .axis-tag.bo { fill: var(--bo); }
+
   #popupCard {
     position:absolute; width:max-content; min-width:220px; max-width:calc(100vw - 32px); max-height:260px; overflow-y:auto;
     background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 16px;
@@ -115,7 +122,7 @@
   #imageModalClose::after { transform:translate(-50%,-50%) rotate(-45deg); }
   #imageModalClose:hover { background:rgba(255,255,255,0.2); transform:rotate(90deg); }
 
-  .mouse-hint-group { pointer-events:none; animation: mouseHintFade 4s ease-in-out 0.15s 1 both; }
+  .mouse-hint-group { pointer-events:none; animation: mouseHintFade 3.5s ease-in-out 0.15s 1 both; }
   @keyframes mouseHintFade {
     0% { opacity:0; }
     12% { opacity:0.95; }
@@ -399,6 +406,7 @@ function setSize(w) {
   view.y = -view.h * verticalAnchor();
 }
 const LABEL_SCALE_REF_PXY = 220; // 이 밀도를 넘어서 확대해도 라벨이 더 커지지 않도록 하는 기준값
+let axisTagLayer = null, gukTag = null, boTag = null;
 function updateLOD() {
   const rect = wrap.getBoundingClientRect();
   const pxPerYear = (rect.width/view.w) * YEAR_PX;
@@ -406,9 +414,32 @@ function updateLOD() {
   if (pxPerYear < 22) labelLayer.classList.add('lod-hide-all');
   const labelScale = pxPerYear > LABEL_SCALE_REF_PXY ? LABEL_SCALE_REF_PXY / pxPerYear : 1;
   labelLayer.style.setProperty('--label-scale', labelScale);
+  if (axisTagLayer) axisTagLayer.style.setProperty('--label-scale', labelScale);
 }
-function applyView() { clampX(); svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`); updateLOD(); }
+function updateAxisTags() {
+  if (!gukTag || !boTag) return;
+  const marginX = 16;
+  const rect = wrap.getBoundingClientRect();
+  const scale = rect.width / view.w; // 화면 px당 viewBox 단위 환산 비율
+  const gap = 17 / scale; // 축에서 약 17px 떨어지도록 (줌 배율과 무관하게 일정하게 보이도록 환산)
+  const fontAscent = 15 * 0.8 / scale; // axis-tag font-size(15) 기준 대략적인 글자 높이 보정
+  gukTag.setAttribute('x', view.x + marginX);
+  gukTag.setAttribute('y', AXIS_Y - gap);
+  boTag.setAttribute('x', view.x + marginX);
+  boTag.setAttribute('y', AXIS_Y + gap + fontAscent);
+}
+function applyView() { clampX(); svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`); updateLOD(); updateAxisTags(); }
 setSize(1300); applyView();
+
+axisTagLayer = el('g', {id:'axisTagLayer'});
+svg.appendChild(axisTagLayer);
+gukTag = el('text', {class:'axis-tag guk'});
+gukTag.textContent = '국보';
+axisTagLayer.appendChild(gukTag);
+boTag = el('text', {class:'axis-tag bo'});
+boTag.textContent = '보물';
+axisTagLayer.appendChild(boTag);
+updateAxisTags();
 
 const mouseHintEl = (function buildMouseHint() {
   const hintCX = view.x + view.w/2;
